@@ -1,115 +1,165 @@
+/* 进行编译预处理 */
 #include<stdio.h>
-#include<time.h>
 #include<stdlib.h>
 
-#define MAXSIZE 100
+/* 定义链表数据类型，用将链表放入list作为表头，length作为链表长度 */ 
+typedef struct data{
+	int k;
+	struct data *next;
+}data;
 
-/* 定义顺序表的结构，数组和数组长度last */
-typedef struct array{
-	int a[100];
-	int last=0;
-}array;
+typedef struct list{
+	data *point;
+	int length;
+}list;
 
-/* 创建顺序表方法，create空表 */
-array* Create_empty(void)
+/* 定义函数创建空链表 */
+list* Create_empty(int num)
 {
-	array* p=(array*)malloc(sizeof(array));
-	p->last=0; 
-	return p;
+	list *head=(list*)malloc(sizeof(list));
+	head->length=0;
+	data *p=(data*)malloc(sizeof(data));
+	p->k=num;
+	p->next=NULL;
+	head->point=p;
+	head->length++;
+	return head;
 }
 
-/* 创建insert方法，用于在特定位置插入元素 */
-void Insert(array* p,int locate, int k) 
+/* 定义函数用于查看链表是否为空 */
+bool Isempty(list* head)
 {
-	if(p->last>=MAXSIZE)
+	if(head->length=0)
 	{
-		printf("已经放不下了");		
-		return;
-	} 
-	if(locate>p->last+1||locate<0)
-	{
-		printf("你的插入不合理"); 
-		return;
-	}
-	int i;
-	for(i=p->last;i>locate;i++)
-	{
-		p->a[i]=p->a[i-1];
-	}
-	p->a[locate]=k;
-	p->last++;
-	return;
-}
-
-/* 在数组中寻找元素并返回下标 */
-int Find(array* p,int k)
-{
-	if(p->last==0)
-	{
-		printf("你的表为空表");
-		return -1;
+		return true;
 	}
 	else
 	{
-		int i;
-		for(i=0;i<p->last;i++)
-		{
-			if(p->a[i]==k)
-			{
-				return i;
-			}
-		}
+		return false;
 	}
-	printf("为找到相应的元素");
-	return k; 
+}
+/* 定义函数用于查找 */
+int Find(list* head, int location)
+{
+	data *p;
+	p=head->point;
+	int i;
+	if(location>head->length)
+	{
+		printf("你的查找位置越界");
+		return 0;
+	}
+	for(i=1;i<location;i++)
+	{
+		p=p->next;
+	}
+	return p->k;
 }
 
-/* 创建delete函数，用于删除表中元素 */
-void Delete(array* p,int locate)
+/* 定义函数用于插入数据 */
+void Insert(list* head,int location,int num)
 {
-	if(p->last==0)
+	data* p;
+	p=head->point;
+	data* q=(data*)malloc(sizeof(data*));
+	q->k=num;
+	if(location==1)
 	{
-		printf("你的表为空表"); 
+		q->next=head->point;
+		head->point=q;
+		head->length++;
 		return;
 	}
-	if(locate>=p->last||locate<0)
+	if(location>head->length||location<1)
 	{
-		printf("你的删除不合格"); 
-		return;
+		printf("你的插入有问题");
 	}
-	int i;
-	for(i=locate;i<p->last;i++)
+	else
 	{
-		p->a[i]=p->a[i+1];
+		for(int i=1;i<location-1;i++)
+		{
+			p=p->next;
+		}
+		q->next=p->next;
+		p->next=q;
+		head->length++;
 	}
-	p->a[i]=0;
-	p->last--;
 	return;
 }
 
-/* 定义length方法，用于查找目前表的元素的个数 */
-int length(array* p)
+/* 定义函数用于删除链表的节点 */ 
+void Delete(list* head,int location)
 {
-	int k=p->last;
-	return k;
+	data *p,*q;
+	p=head->point;
+	if(location>head->length||location<1)
+	{
+		printf("你要删除的节点不存在");
+	}
+	if(location==1)
+	{
+		head->point=p->next;
+		head->length--;
+		return;
+	}
+	else
+	{
+		for(int i=1;i<location-1;i++)
+		{
+			p=p->next;
+		}
+		q=p->next;
+		p->next=q->next;
+		free(q);
+		head->length--;
+	}
+	return;
 }
 
-/* 定义查找给定数组的第k个元素 */ 
-int Findkth(array* p,int n)
+/* 定义函数用于返回链表的长度 */
+int Length(list* head)
 {
-	return p->a[n-1];
+	return head->length;
 }
 
-/* 在主函数进行验证函数定义的真确性 */
+/* 定义函数用于清空链表的节点 */
+void clear(list* head)
+{
+	data *p,*q;
+	p=head->point;
+	q=p->next;
+	for(;p;)
+	{
+		free(p);
+		p=q;
+		q=p->next;
+	}
+	head->length=0;
+	head->point=NULL;
+	return;
+}
+
+/* 定义函数用于打印链表中的数据 */
+void Print(list* head)
+{
+	data* p=head->point;
+	for(;p;p=p->next)
+	{
+		printf("%d\n",p->k);
+	}
+	return;
+}
+
+/* 主函数main */
 int main(void)
 {
-	array* p=Create_empty();
-	int i;
-	for(i=0;i<50;i++)
+	list* head=Create_empty(5);
+	for(int i=0;i<10;i++)
 	{
-		Insert(p,i,i+1);
+		Insert(head,i,i);
 	}
-	printf("%d",Find(p,1));
-	printf("%d",Findkth(p,49));
+	Delete(head,5);
+	Print(head);
+	printf("%d",head->length);
 	return 0;
-} 
+}
